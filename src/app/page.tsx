@@ -32,23 +32,22 @@ export default function HomePage() {
         await vid.play();
       }
     } catch {
-      // Sessiz devam et
+      // Hata durumunda sessiz devam et
     }
   };
 
   return (
-    <div
+    <main
       onClick={handleTap}
       style={{
         position: "fixed",
-        top: 0,
-        left: 0,
+        inset: 0,
         width: "100vw",
         height: "100vh",
-        minHeight: "100dvh",
         backgroundColor: "#000000",
         overflow: "hidden",
-        zIndex: 9999,
+        margin: 0,
+        padding: 0,
       }}
     >
       <video
@@ -60,17 +59,13 @@ export default function HomePage() {
         preload="auto"
         controls={false}
         style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
           width: "100vw",
           height: "100vh",
-          minWidth: "100%",
-          minHeight: "100%",
           objectFit: "cover",
-          transform: "translate(-50%, -50%) scale(1.02)",
+          objectPosition: "center",
+          display: "block",
         }}
       />
-    </div>
+    </main>
   );
 }
