@@ -1,102 +1,62 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function HomePage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [muted, setMuted] = useState<boolean>(true);
-  const [paused, setPaused] = useState<boolean>(false);
 
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
 
-    vid.muted = true;
-    vid.play().catch(() => {
-      setPaused(true);
-    });
+    vid.muted = false;
+    vid.volume = 1;
+    vid.play().catch(() => {});
   }, []);
 
-  const handleScreenTap = async () => {
+  const handleTap = () => {
     const vid = videoRef.current;
     if (!vid) return;
 
-    try {
-      if (vid.muted) {
-        vid.muted = false;
-        setMuted(false);
-      }
-      if (vid.paused) {
-        await vid.play();
-        setPaused(false);
-      }
-    } catch {
-      // Sessiz devam et
-    }
-  };
-
-  const togglePlay = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const vid = videoRef.current;
-    if (!vid) return;
-
+    vid.muted = false;
+    vid.volume = 1;
     if (vid.paused) {
-      await vid.play().catch(() => {});
-      setPaused(false);
-    } else {
-      vid.pause();
-      setPaused(true);
+      vid.play().catch(() => {});
     }
-  };
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const vid = videoRef.current;
-    if (!vid) return;
-
-    vid.muted = !vid.muted;
-    setMuted(vid.muted);
   };
 
   return (
     <main
-      onClick={handleScreenTap}
-      className="relative w-full h-[100dvh] bg-black flex items-center justify-center overflow-hidden"
+      onClick={handleTap}
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100dvh",
+        backgroundColor: "#000000",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        margin: 0,
+        padding: 0,
+      }}
     >
       <video
         ref={videoRef}
         src="/video.mp4"
-        playsInline
+        autoPlay
         loop
+        playsInline
         preload="auto"
-        className="w-full h-full object-contain"
-        onPlay={() => setPaused(false)}
-        onPause={() => setPaused(true)}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+          display: "block",
+          margin: "auto",
+        }}
       />
-
-      {muted && (
-        <div className="pointer-events-none fixed top-5 left-1/2 -translate-x-1/2 z-20 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md text-white text-xs tracking-wide">
-          Sesi açmak için ekrana dokun
-        </div>
-      )}
-
-      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={togglePlay}
-          className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-md text-white text-sm font-medium transition"
-        >
-          {paused ? "Oynat" : "Duraklat"}
-        </button>
-
-        <button
-          type="button"
-          onClick={toggleMute}
-          className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-md text-white text-sm font-medium transition"
-        >
-          {muted ? "Ses Aç" : "Sessiz"}
-        </button>
-      </div>
     </main>
   );
 }
