@@ -1,86 +1,54 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function HomePage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [sesAcik, setSesAcik] = useState<boolean>(false);
 
   useEffect(() => {
-    const videoElement = videoRef.current;
-    if (!videoElement) {
-      return;
-    }
+    const vid = videoRef.current;
+    if (!vid) return;
 
-    // Sayfa ilk acildiginda videonun sesi ve oynatilmasi hazirlanir
-    videoElement.muted = false;
-    videoElement.volume = 1.0;
-    videoElement.loop = true;
-    videoElement.playsInline = true;
+    vid.muted = false;
+    vid.volume = 1.0;
+    vid.loop = true;
+    vid.playsInline = true;
 
-    videoElement
-      .play()
-      .then(() => {
-        setSesAcik(true);
-      })
-      .catch(() => {
-        // Mobil tarayicilar sesli oto-oynatmayi ilk dokunusa kadar engelleyebilir
-        videoElement.muted = true;
-        videoElement
-          .play()
-          .then(() => {
-            setSesAcik(false);
-          })
-          .catch(() => {});
-      });
+    vid.play().catch(() => {
+      vid.muted = true;
+      vid.play().catch(() => {});
+    });
   }, []);
 
-  const handleScreenClick = async () => {
-    const videoElement = videoRef.current;
-    if (!videoElement) {
-      return;
-    }
+  const handleTap = async () => {
+    const vid = videoRef.current;
+    if (!vid) return;
 
     try {
-      // Ekrana dokunuldugunda sesi ac, sesi en yuksege cek ve oynatmaya devam et
-      videoElement.muted = false;
-      videoElement.volume = 1.0;
-      videoElement.loop = true;
-
-      if (videoElement.paused) {
-        await videoElement.play();
+      vid.muted = false;
+      vid.volume = 1.0;
+      vid.loop = true;
+      if (vid.paused) {
+        await vid.play();
       }
-
-      setSesAcik(true);
     } catch {
-      // Hata olursa mevcut oynatma durumunu bozma
+      // Sessiz devam et
     }
   };
 
   return (
-    <main
-      onClick={handleScreenClick}
+    <div
+      onClick={handleTap}
       style={{
         position: "fixed",
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
         width: "100vw",
-        height: "100dvh",
-        minWidth: "100%",
-        minHeight: "100%",
+        height: "100vh",
+        minHeight: "100dvh",
         backgroundColor: "#000000",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         overflow: "hidden",
-        margin: 0,
-        padding: 0,
-        userSelect: "none",
-        WebkitUserSelect: "none",
-        WebkitTapHighlightColor: "transparent",
-        cursor: "pointer",
+        zIndex: 9999,
       }}
     >
       <video
@@ -88,28 +56,21 @@ export default function HomePage() {
         src="/video.mp4"
         autoPlay
         loop
-        muted={!sesAcik}
         playsInline
         preload="auto"
         controls={false}
         style={{
-          position: "relative",
-          width: "100%",
-          height: "100%",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "100vw",
+          height: "100vh",
           minWidth: "100%",
           minHeight: "100%",
-          maxWidth: "none",
-          maxHeight: "none",
           objectFit: "cover",
-          objectPosition: "center center",
-          display: "block",
-          margin: 0,
-          padding: 0,
-          border: "none",
-          outline: "none",
-          backgroundColor: "#000000",
+          transform: "translate(-50%, -50%) scale(1.02)",
         }}
       />
-    </main>
+    </div>
   );
 }
