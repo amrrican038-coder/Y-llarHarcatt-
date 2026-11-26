@@ -1,38 +1,75 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function HomePage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [sesAcik, setSesAcik] = useState<boolean>(false);
 
   useEffect(() => {
-    const vid = videoRef.current;
-    if (!vid) return;
+    const videoElement = videoRef.current;
+    if (!videoElement) {
+      return;
+    }
 
-    vid.muted = false;
-    vid.volume = 1;
-    vid.play().catch(() => {});
+    // Sayfa ilk acildiginda videonun sesi ve oynatilmasi hazirlanir
+    videoElement.muted = false;
+    videoElement.volume = 1.0;
+    videoElement.loop = true;
+    videoElement.playsInline = true;
+
+    videoElement
+      .play()
+      .then(() => {
+        setSesAcik(true);
+      })
+      .catch(() => {
+        // Mobil tarayicilar sesli oto-oynatmayi ilk dokunusa kadar engelleyebilir
+        videoElement.muted = true;
+        videoElement
+          .play()
+          .then(() => {
+            setSesAcik(false);
+          })
+          .catch(() => {});
+      });
   }, []);
 
-  const handleTap = () => {
-    const vid = videoRef.current;
-    if (!vid) return;
+  const handleScreenClick = async () => {
+    const videoElement = videoRef.current;
+    if (!videoElement) {
+      return;
+    }
 
-    vid.muted = false;
-    vid.volume = 1;
-    if (vid.paused) {
-      vid.play().catch(() => {});
+    try {
+      // Ekrana dokunuldugunda sesi ac, sesi en yuksege cek ve oynatmaya devam et
+      videoElement.muted = false;
+      videoElement.volume = 1.0;
+      videoElement.loop = true;
+
+      if (videoElement.paused) {
+        await videoElement.play();
+      }
+
+      setSesAcik(true);
+    } catch {
+      // Hata olursa mevcut oynatma durumunu bozma
     }
   };
 
   return (
     <main
-      onClick={handleTap}
+      onClick={handleScreenClick}
       style={{
         position: "fixed",
-        inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         width: "100vw",
         height: "100dvh",
+        minWidth: "100%",
+        minHeight: "100%",
         backgroundColor: "#000000",
         display: "flex",
         alignItems: "center",
@@ -40,6 +77,10 @@ export default function HomePage() {
         overflow: "hidden",
         margin: 0,
         padding: 0,
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        WebkitTapHighlightColor: "transparent",
+        cursor: "pointer",
       }}
     >
       <video
@@ -47,14 +88,26 @@ export default function HomePage() {
         src="/video.mp4"
         autoPlay
         loop
+        muted={!sesAcik}
         playsInline
         preload="auto"
+        controls={false}
         style={{
+          position: "relative",
           width: "100%",
           height: "100%",
-          objectFit: "contain",
+          minWidth: "100%",
+          minHeight: "100%",
+          maxWidth: "none",
+          maxHeight: "none",
+          objectFit: "cover",
+          objectPosition: "center center",
           display: "block",
-          margin: "auto",
+          margin: 0,
+          padding: 0,
+          border: "none",
+          outline: "none",
+          backgroundColor: "#000000",
         }}
       />
     </main>
